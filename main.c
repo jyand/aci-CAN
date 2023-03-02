@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "acican.h"
 
 #ifndef F_CPU

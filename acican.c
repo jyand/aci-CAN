@@ -38,7 +38,7 @@ void InitRXMOb(unsigned char mob, unsigned long id, unsigned long mask) {
         CANCDMOB &= ~((1 << DLC3) | (1 << DLC3) | (1 << DLC1) | (1 << DLC0)) ;
 
         CANCDMOB &= ~((1 << CONMOB1) | (1 << CONMOB0)) ;
-        CANCDMOB |= (2U << CONMOB) ;
+        CANCDMOB |= (2U << CONMOB0) ;
 }
 
 void InitCAN() {
