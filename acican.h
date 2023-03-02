@@ -7,10 +7,6 @@
 #include <avr/wdt.h>
 #include <util/delay.h>
 
-#ifndef F_CPU
-#define F_CPU 16000000UL
-#endif
-
 #define CAN_BAUDRATE 250
 
 #if CAN_BAUDRATE == 500

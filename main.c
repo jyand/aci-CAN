@@ -1,11 +1,8 @@
+#include "acican.h"
+
 #ifndef F_CPU
 #define F_CPU 16000000UL
 #endif
-
-#include <avr/sleep.h>
-#include <avr/wdt.h>
-#include <util/delay.h>
-#include "acican.h"
 
 #define DELAY 100
 
@@ -19,7 +16,9 @@ void main() {
         packet->devclass = 0x20 ;
         packet->devID = 0x00 ;
         packet->subID = 0x81 ;
-        packet->data[] = 0x15B01 ;
+        packet->data[0] = 0x1 ;
+        packet->data[1] = 0x5B ;
+        packet->data[2] = 0x1 ;
         for (;;) {
                 asm("wdr ;") ;
                 SendCANPacket(packet) ;
