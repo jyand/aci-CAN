@@ -2,12 +2,10 @@
 #define F_CPU 16000000UL
 #endif
 
-#include <avr/io.h>
 #include <avr/sleep.h>
 #include <avr/wdt.h>
 #include <util/delay.h>
 #include "acican.h"
-#include "lxcan.h"
 
 #define DELAY 100
 

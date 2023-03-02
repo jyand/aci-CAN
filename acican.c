@@ -1,15 +1,13 @@
 #include "acican.h"
-#include "lxcan.h"
-#include "avr/io.h"
 
-inline void ClearMOb() {
+void ClearMOb() {
         unsigned char *k ;
         for (k = &CANSTMOB ; k < &CANSTML ; k++) {
                 *k = 0x00 ;
         }
 }
 
-inline void ClearAllMOb() {
+void ClearAllMOb() {
         unsigned char mobnum ;
         for (mobnum = 0 ; mobnum < NB_MOB ; mobnum++) {
                 CANPAGE = (mobnum << 4) ;
@@ -17,7 +15,7 @@ inline void ClearAllMOb() {
         }
 }
 
-inline void SetExtID(unsigned long id) {
+void SetExtID(unsigned long id) {
         CANIDT1 = (*((unsigned char*)(&(id) + 3)) << 3) + (*((unsigned char*)((&(id)) + 2)) << 5) ;
         CANIDT2 = (*((unsigned char*)(&(id) + 2)) << 3) + (*((unsigned char*)((&(id)) + 1)) << 5) ;
         CANIDT3 = (*((unsigned char*)(&(id) + 1)) << 3) + (*(unsigned char*)((&(id))) << 5) ;
@@ -25,7 +23,7 @@ inline void SetExtID(unsigned long id) {
 }
 
 // skip Status, Unicast, and Broadcast MOb config for now
-inline void InitRXMOb(unsigned char mob, unsigned long id, unsigned long mask) {
+void InitRXMOb(unsigned char mob, unsigned long id, unsigned long mask) {
         CANPAGE = (mob << 4) ;
 
         CANCDMOB &= ~(1 << IDE) ;
@@ -60,4 +58,56 @@ void InitCAN() {
         CANGIE = 0xEA ;
 
         CANGCON |= (1 << ENASTB) ;
+}
+
+struct CANQueue {
+        struct CANPacket packet[CAN_QUEUE_LEN] ;
+        unsigned char head ;
+        unsigned char next ;
+        unsigned char length ;
+} ;
+
+unsigned long GenCANID(const struct CANPacket *pkt) {
+        const unsigned long magic = (0x5 << 25) ;
+        unsigned long word = magic | (((unsigned long)pkt->devclass << 16) & (0xFFUL << 16)) ;
+        word |= (((unsigned long)pkt->devID << 8) & (0xFFUL << 8)) ;
+        word |= (unsigned long)pkt->subID & 0xFFUL ;
+        return word ;
+}
+
+void SendCANPacket(const struct CANPacket *pkt) {
+        const unsigned long timeout = 0xFFFFFFF ;
+        unsigned long timer = 0 ;
+        unsigned char canpagereg = CANPAGE ;
+        char k = 0 ;
+        char mobnum ;
+        do {
+                mobnum = k ;
+                k = (k + 1)%2 ;
+                ++timer ;
+                asm("wdr ;") ;
+        } while (((CANEN2 >> mobnum) & 0x1U) && timer < timeout) ;
+        if (timer >= timeout) {
+                return ;
+        }
+        CANPAGE = (mobnum << 4) ;
+        CANCDMOB &= ~((1 << CONMOB1) | (1 << CONMOB0)) ;
+        CANSTMOB & ~(1 << TXOK) ;
+        CANCDMOB |= (1 << IDE) | (1 << RPLV) ;
+        CANIDT4 |= (1 << RTRTAG) ;
+
+        unsigned long tempID = GenCANID(pkt) ;
+        SetExtID(tempID) ;
+        CANCDMOB &= 0xF0U ;
+        CANCDMOB |= ((unsigned char)sizeof(pkt->data) & ((1 << DLC3) | (1 << DLC2) | (1 << DLC1) | (1 << DLC0))) ;
+
+        CANPAGE &= 0xF0 ;
+        for (k = 0 ; k < ((unsigned char)sizeof(pkt->data)%9) ; k++) {
+                CANMSG = pkt->data[k] ;
+        }
+
+        CANCDMOB &= ~((1 << CONMOB1) | (1 << CONMOB0)) ;
+        CANCDMOB |= (1 << CONMOB0) ;
+
+        CANPAGE = canpagereg ;
 }
