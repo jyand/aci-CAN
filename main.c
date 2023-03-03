@@ -1,11 +1,7 @@
 #include <stdlib.h>
 #include "acican.h"
 
-#ifndef F_CPU
-#define F_CPU 16000000UL
-#endif
-
-#define DELAY 100
+#define DELAY 10
 
 void main() __attribute__((noreturn)) ;
 
@@ -20,6 +16,7 @@ void main() {
         packet->data[0] = 0x1 ;
         packet->data[1] = 0x5B ;
         packet->data[2] = 0x1 ;
+        asm("sei ;") ;
         for (;;) {
                 asm("wdr ;") ;
                 SendCANPacket(packet) ;

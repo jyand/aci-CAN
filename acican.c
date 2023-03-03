@@ -1,8 +1,8 @@
 #include "acican.h"
 
 void ClearMOb() {
-        unsigned char *k ;
-        for (k = &CANSTMOB ; k < &CANSTML ; k++) {
+        volatile unsigned char *k ;
+        for (k = &CANSTMOB ; k < &CANSTML ; ++k) {
                 *k = 0x00 ;
         }
 }
@@ -68,7 +68,7 @@ struct CANQueue {
 } ;
 
 unsigned long GenCANID(const struct CANPacket *pkt) {
-        const unsigned long magic = (0x5 << 25) ;
+        const unsigned long magic = (0x5UL << 25) ;
         unsigned long word = magic | (((unsigned long)pkt->devclass << 16) & (0xFFUL << 16)) ;
         word |= (((unsigned long)pkt->devID << 8) & (0xFFUL << 8)) ;
         word |= (unsigned long)pkt->subID & 0xFFUL ;
@@ -92,7 +92,7 @@ void SendCANPacket(const struct CANPacket *pkt) {
         }
         CANPAGE = (mobnum << 4) ;
         CANCDMOB &= ~((1 << CONMOB1) | (1 << CONMOB0)) ;
-        CANSTMOB & ~(1 << TXOK) ;
+        CANSTMOB &= ~(1 << TXOK) ;
         CANCDMOB |= (1 << IDE) | (1 << RPLV) ;
         CANIDT4 |= (1 << RTRTAG) ;
 
@@ -102,7 +102,7 @@ void SendCANPacket(const struct CANPacket *pkt) {
         CANCDMOB |= ((unsigned char)sizeof(pkt->data) & ((1 << DLC3) | (1 << DLC2) | (1 << DLC1) | (1 << DLC0))) ;
 
         CANPAGE &= 0xF0 ;
-        for (k = 0 ; k < ((unsigned char)sizeof(pkt->data)%9) ; k++) {
+        for (int8_t k = 0 ; k < ((unsigned char)sizeof(pkt->data)%9) ; k++) {
                 CANMSG = pkt->data[k] ;
         }
 
