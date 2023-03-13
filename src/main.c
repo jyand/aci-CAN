@@ -1,8 +1,6 @@
 #include <stdlib.h>
 #include "acican.h"
 
-#define DELAY 10
-
 void main() __attribute__((noreturn)) ;
 
 void main() {
@@ -20,7 +18,6 @@ void main() {
         for (;;) {
                 asm("wdr ;") ;
                 SendCANPacket(packet) ;
-                _delay_ms(DELAY) ;
                 sleep_disable() ;
         }
 }

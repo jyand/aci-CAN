@@ -11,7 +11,7 @@
 #include <avr/wdt.h>
 #include <util/delay.h>
 
-#define CAN_BAUDRATE 500
+#define CAN_BAUDRATE 250
 
 #if CAN_BAUDRATE == 500
 #define CAN_BIT_TIMING1 0x06
