@@ -108,8 +108,7 @@ void SendCANPacket(const struct CANPacket *pkt) {
         CANIDT4 |= (1 << RTRTAG) ;
 
         unsigned long tempID = GenCANID(pkt) ;
-        //SetExtID(tempID) ;
-        SetStdID(tempID) ;
+        SetExtID(tempID) ;
         CANCDMOB &= 0xF0U ;
         CANCDMOB |= ((unsigned char)sizeof(pkt->data) & ((1 << DLC3) | (1 << DLC2) | (1 << DLC1) | (1 << DLC0))) ;
 
