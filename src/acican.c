@@ -22,6 +22,17 @@ void SetExtID(unsigned long id) {
         CANIDT4 = (*(unsigned char*)(&(id)) << 3) ;
 }
 
+void SetStdID(unsigned long id) {
+        CANIDT1 = (unsigned char)(((unsigned short)id) >> 3) ;
+        CANIDT2 = (unsigned char)(((unsigned short)id) << 5) ;
+        CANCDMOB &= ~(1 << IDE) ;
+}
+
+void GetStdID(unsigned long id) {
+        *((unsigned char*)(&(id)) + 1) = CANIDT1 >> 5 ;
+        *((unsigned char*)(&(id))) = (CANIDT2 >> 5) + (CANIDT1 << 3) ;
+}
+
 // skip Status, Unicast, and Broadcast MOb config for now
 void InitRXMOb(unsigned char mob, unsigned long id, unsigned long mask) {
         CANPAGE = (mob << 4) ;
@@ -97,7 +108,8 @@ void SendCANPacket(const struct CANPacket *pkt) {
         CANIDT4 |= (1 << RTRTAG) ;
 
         unsigned long tempID = GenCANID(pkt) ;
-        SetExtID(tempID) ;
+        //SetExtID(tempID) ;
+        SetStdID(tempID) ;
         CANCDMOB &= 0xF0U ;
         CANCDMOB |= ((unsigned char)sizeof(pkt->data) & ((1 << DLC3) | (1 << DLC2) | (1 << DLC1) | (1 << DLC0))) ;
 
@@ -110,4 +122,16 @@ void SendCANPacket(const struct CANPacket *pkt) {
         CANCDMOB |= (1 << CONMOB0) ;
 
         CANPAGE = canpagereg ;
+}
+
+unsigned char GetMObData(struct CANPacket *pkt) {
+        unsigned long canid ;
+        GetStdID(canid) ;
+        pkt->devclass = (canid & (0xFFUL << 16)) >> 16 ;
+        pkt->devID = (canid & (0xFFUL << 8)) >> 8 ;
+        pkt->subID = canid & 0xFFUL ;
+        for (unsigned char index = 0 ; index < 8 ; ++index) {
+                *(pkt->data + index) = CANMSG ;
+        }
+        return (unsigned char)(((canid & 0x1UL) << 24) >> 24) ;
 }

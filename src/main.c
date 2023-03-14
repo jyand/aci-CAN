@@ -18,6 +18,7 @@ void main() {
         packet->data[5] = 0xE5 ;
         packet->data[6] = 0xA1 ;
         packet->data[7] = 0x70 ;
+        //InitRXMOb() ;
         asm("sei ;") ;
         for (;;) {
                 asm("wdr ;") ;

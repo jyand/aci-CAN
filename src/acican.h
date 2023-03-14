@@ -42,6 +42,7 @@ struct CANPacket {
 void ClearMOb(void) ;
 void ClearAllMOb(void) ;
 void SetExtID(unsigned long id) ;
+void SetStdID(unsigned long id) ;
 void InitRXMOb(unsigned char mob, unsigned long id, unsigned long mask) ;
 unsigned long GenCANID(const struct CANPacket *pkt) ;
 void SendCANPacket(const struct CANPacket *pkt) ;
