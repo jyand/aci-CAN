@@ -14,6 +14,10 @@ void main() {
         packet->data[0] = 0x1 ;
         packet->data[1] = 0x5B ;
         packet->data[2] = 0x1 ;
+        packet->data[4] = 0xDE ;
+        packet->data[5] = 0xAD ;
+        packet->data[6] = 0xBE ;
+        packet->data[7] = 0xEF ;
         asm("sei ;") ;
         for (;;) {
                 asm("wdr ;") ;
