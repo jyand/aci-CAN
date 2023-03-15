@@ -62,6 +62,12 @@ void InitCAN() {
 
         ClearAllMOb() ;
 
+        for (signed char k = 2 ; k <= 4 ; ++k) {
+                InitRXMOb(k, 0, ((0x1UL << 24) | (0xFUL << 25))) ;
+        }
+        InitRXMOb(4, 0, (0xFFUL << 16) | ((0x1UL << 24) | (0xFUL << 25)) | (0xFFUL << 8)) ;
+        InitRXMOb(5, 0, (0xFFUL << 16) | ((0x1UL << 24) | (0xFUL << 25)) | (0xFFUL << 8)) ;
+
         CANEN2 = 0x3CU ;
         CANEN1 = 0x00U ;
         CANIE2 = 0x3CU ;
