@@ -4,6 +4,8 @@
 void main() __attribute__((noreturn)) ;
 
 void main() {
+        CLKPR = 0x80 ;
+        CLKPR = 0 ;
         asm("cli ; wdr ;") ;
         InitCAN() ;
         struct CANPacket *packet ;
