@@ -1,8 +1,7 @@
 #include "acican.h"
 
 void ClearMOb() {
-        volatile unsigned char *k ;
-        for (k = &CANSTMOB ; k < &CANSTML ; ++k) {
+        for (unsigned char volatile *k = &CANSTMOB ; k < &CANSTML ; ++k) {
                 *k = 0x00 ;
         }
 }
@@ -130,7 +129,7 @@ void SendCANPacket(const struct CANPacket *pkt) {
 }
 
 unsigned char GetMObData(struct CANPacket *pkt) {
-        unsigned long canid ;
+        unsigned long canid = 0 ;
         GetStdID(canid) ;
         pkt->devclass = (canid & (0xFFUL << 16)) >> 16 ;
         pkt->devID = (canid & (0xFFUL << 8)) >> 8 ;
