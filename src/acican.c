@@ -79,7 +79,7 @@ struct CANQueue {
 } ;
 
 unsigned long GenCANID(const struct CANPacket *pkt) {
-        const unsigned long magic = (0xBUL << 24) ;
+        const unsigned long magic = (0xBUL << 27) ;
         unsigned long word = magic | (((unsigned long)pkt->devclass << 16) & (0xFFUL << 16)) ;
         word |= (((unsigned long)pkt->devID << 8) & (0xFFUL << 8)) ;
         word |= (unsigned long)pkt->subID & 0xFFUL ;
