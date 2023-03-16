@@ -6,9 +6,11 @@
 #define _ACI_CAN_H_
 #endif
 
+#include <avr/interrupt.h>
 #include <avr/io.h>
 #include <avr/sleep.h>
 #include <avr/wdt.h>
+#include <stddef.h>
 #include <util/delay.h>
 
 #define CAN_BAUDRATE 500
@@ -37,6 +39,13 @@ struct CANPacket {
         unsigned char devclass ;
         unsigned char devID ;
         unsigned char subID ;
+} ;
+
+struct CANQueue {
+        struct CANPacket packet[CAN_QUEUE_LEN]  ;
+        unsigned char first ; 
+        unsigned char next ;
+        unsigned char length ;
 } ;
 
 void ClearMOb(void) ;

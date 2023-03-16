@@ -1,5 +1,7 @@
 #include "acican.h"
 
+struct CANQueue g_canq ;
+
 void ClearMOb() {
         for (unsigned char volatile *k = &CANSTMOB ; k < &CANSTML ; ++k) {
                 *k = 0x00 ;
@@ -76,13 +78,6 @@ void InitCAN() {
         CANGCON |= (1 << ENASTB) ;
 }
 
-struct CANQueue {
-        struct CANPacket packet[CAN_QUEUE_LEN] ;
-        unsigned char head ;
-        unsigned char next ;
-        unsigned char length ;
-} ;
-
 unsigned long GenCANID(const struct CANPacket *pkt) {
         const unsigned long magic = (0xBUL << 27) ;
         unsigned long word = magic | (((unsigned long)pkt->devclass << 16) & (0xFFUL << 16)) ;
@@ -138,4 +133,40 @@ unsigned char GetMObData(struct CANPacket *pkt) {
                 *(pkt->data + index) = CANMSG ;
         }
         return (unsigned char)(((canid & 0x1UL) << 24) >> 24) ;
+}
+
+struct CANPacket *GetPacket() {
+        if (g_canq.length < CAN_QUEUE_LEN) {
+                return &(g_canq.packet[g_canq.next]) ;
+        } else {
+                return 0 ;
+        }
+}
+
+void EnqueuePacket() {
+        g_canq.next = (g_canq.next + 1)%CAN_QUEUE_LEN ;
+        g_canq.length++ ;
+}
+
+ISR(CAN_INT_vect) {
+        struct CANPacket *pkt ;
+        unsigned char canpagereg = CANPAGE ;
+        unsigned char k = 2 ;
+        while (k <= 5 && (CANSIT & 0x3CU)) {
+                if ((CANSIT >> k) & 0x1U) {
+                        CANPAGE = (k << 4) ;
+                        if (CANSTMOB & (1 << RXOK)) {
+                                pkt = GetPacket() ;
+                                if (pkt != NULL) {
+                                        EnqueuePacket() ;
+                                }
+                                CANCDMOB &= ~((1 << CONMOB1) | (1 << CONMOB0)) ;
+                                CANCDMOB |= (0x2U << CONMOB0) ;
+                        }
+                        CANSTMOB &= 0 ;
+                }
+                k++ ;
+        }
+        CANGIT = 0x7FU  ;
+        CANPAGE = canpagereg ;
 }
