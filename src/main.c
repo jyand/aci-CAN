@@ -7,7 +7,7 @@ void main() {
         asm("cli ; wdr ;") ;
         InitCAN() ;
         struct CANPacket *packet ;
-        //packet = (struct CANPacket*)malloc(sizeof(struct CANPacket)) ;
+        packet = (struct CANPacket*)malloc(sizeof(struct CANPacket)) ;
         /*packet->devclass = 0x20 ;
         packet->devID = 0x00 ;
         packet->subID = 0x81 ;
