@@ -21,7 +21,7 @@ void main() {
         asm("sei ;") ;
         for (;;) {
                 asm("wdr ;") ;
-                packet = GetPacket() ;
+                //packet = GetPacket() ;
                 SendCANPacket(packet) ;
                 sleep_disable() ;
         }
