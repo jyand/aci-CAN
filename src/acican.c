@@ -23,6 +23,13 @@ void SetExtID(unsigned long id) {
         CANIDT4 = (*(unsigned char*)(&(id)) << 3) ;
 }
 
+void GetExtID(unsigned long id) {
+        *((unsigned char*)(&(id)) + 3) = CANIDT1 >> 3 ;
+        *((unsigned char*)(&(id)) + 2) = (CANIDT2 >> 3) + (CANIDT1 << 5) ;
+        *((unsigned char*)(&(id)) + 1) = (CANIDT3 >> 3) + (CANIDT2 << 5) ;
+        *((unsigned char*)(&(id))) = (CANIDT4 >> 3) + (CANIDT3 << 5) ;
+}
+
 void SetStdID(unsigned long id) {
         CANIDT1 = (unsigned char)(((unsigned short)id) >> 3) ;
         CANIDT2 = (unsigned char)(((unsigned short)id) << 5) ;
