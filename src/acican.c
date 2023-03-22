@@ -2,6 +2,15 @@
 
 struct CANQueue g_canq ;
 
+void SendTemperature(unsigned char subid, unsigned short temperature) {
+        struct CANPacket pkt ; 
+        pkt.data[0] = 1 ;
+        pkt.data[1] = (signed char)(temperature & 0xFF) ;
+        pkt.data[2] = (signed char)((temperature >> 8) & 0xFF) ;
+        pkt.subID = subid ;
+        SendCANPacket(&pkt) ;
+}
+
 void ClearMOb() {
         for (unsigned char volatile *k = &CANSTMOB ; k < &CANSTML ; ++k) {
                 *k = 0x00 ;
