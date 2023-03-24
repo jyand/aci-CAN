@@ -3,10 +3,10 @@
 struct CANQueue g_canq ;
 
 void SendTemperature(unsigned char subid, unsigned short temperature) {
-        struct CANPacket pkt ; 
+        struct CANPacket pkt ;
         pkt.data[0] = 1 ;
-        pkt.data[1] = (signed char)(temperature & 0xFF) ;
-        pkt.data[2] = (signed char)((temperature >> 8) & 0xFF) ;
+        pkt.data[1] = (signed char)(temperature & 0xFFU) ;
+        pkt.data[2] = (signed char)((temperature >> 8) & 0xFFU) ;
         pkt.subID = subid ;
         SendCANPacket(&pkt) ;
 }
