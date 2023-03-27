@@ -1,8 +1,6 @@
 #include "aci429.h"
 #include "lx64m1.h"
 
-unsigned long TxQueue[32] ;
-
 inline void SPIWait() {
         while (!(SPSR & (1 << SPIF))) {}
 }

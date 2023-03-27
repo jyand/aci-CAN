@@ -4,6 +4,8 @@
 
 #include <stdint.h>
 
+unsigned long TxQueue[32] ;
+
 void SPIWait(void) ;
 void SoftMasterReset(void) ;
 int8_t ReadACLKDiv(void) ;

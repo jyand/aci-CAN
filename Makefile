@@ -4,4 +4,4 @@ all:
 clean:
 	rm -v main *.hex
 install:
-	avrdude -v -c atmelice_isp -p m64m1 -U flash:r:main.hex:i
+	avrdude -v -c atmelice_isp -p m64m1 -U flash:w:main.hex:i
