@@ -6,9 +6,12 @@
 
 void SPIWait(void) ;
 void SoftMasterReset(void) ;
+int8_t ReadACLKDiv(void) ;
 void WriteACLKDiv(unsigned char divisor) ;
 unsigned char ReadStatusReg(void) ;
+unsigned short ReadCtlReg(void) ;
 void WriteCtlReg(unsigned short halfword) ;
+void WriteTxFIFO(int numwords) ;
 unsigned long ReadRxFIFO(void) ;
 unsigned char ExtractLabel(unsigned long word) ;
 unsigned char ExtractSDI(unsigned long word) ;
