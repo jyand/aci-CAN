@@ -21,14 +21,12 @@ void main() {
         pkt->subID = 0x81 ;
         for (;;) {
                 asm("cli ; wdr ; sei;") ;
-                for (int k = 0 ; k < 16 ; ++k) {
-                        TxQueue[k] = SetCabinFanSpeed(k) ;
-                        TxQueue[k + 16] = CabinZoneSetPoint(k + 60) ;
-                }
-                WriteTxFIFO(sizeof(TxQueue)) ;
-                unsigned long temp = ReadRxFIFO() ;
-                unsigned char lbl = ExtractLabel(temp) ;
+                unsigned long enviro = ReadRxFIFO() ;
+                unsigned char lbl = ExtractLabel(enviro) ;
+                unsigned short temp = (short)(ExtractData(enviro)) ;
                 pkt->data[0] = lbl ;
+                pkt->data[1] = (char)(temp >> 8) ;
+                pkt->data[1] = (char)(temp & 0xFF) ;
                 SendCANPacket(pkt) ;
                 sleep_disable() ;
         }
