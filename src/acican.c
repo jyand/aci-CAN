@@ -1,7 +1,5 @@
 #include "acican.h"
 
-struct CANQueue g_canq ;
-
 void SendTemperature(unsigned char subid, unsigned short temperature) {
         struct CANPacket pkt ;
         pkt.data[0] = 1 ;

@@ -15,19 +15,23 @@ void main() {
         InitCAN() ;
         struct CANPacket *pkt ; 
         pkt = (struct CANPacket*)malloc(sizeof(struct CANPacket)) ;
+        //g_rxpkt = (struct CANPacket*)malloc(sizeof(struct CANPacket)) ;
         pkt->devclass = 0x20 ;
         pkt->devID = 0x0 ;
         pkt->subID = 0x81 ;
-        //asm("sei ;") ;
         for (;;) {
-                asm("wdr ;") ;
-                for (int k = 0 ; k < 16 ; ++k) {
+                asm("cli ; wdr ; sei;") ;
+                /*for (int k = 0 ; k < 16 ; ++k) {
                         TxQueue[k] = SetCabinFanSpeed(k) ;
                         TxQueue[k + 16] = CabinZoneSetPoint(k + 60) ;
                 }
-                WriteTxFIFO(sizeof(TxQueue)) ;
+                WriteTxFIFO(sizeof(TxQueue)) ;*/
+                unsigned long temp = ReadRxFIFO() ;
+                unsigned char lbl = ExtractLabel(temp) ;
                 pkt->data[0] = 0x01 ;
                 pkt->data[1] = 0x5B ;
+                pkt->data[2] = 0x0 ;
+                pkt->data[3] = lbl ;
                 SendCANPacket(pkt) ;
                 sleep_disable() ;
         }

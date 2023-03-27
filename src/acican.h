@@ -48,6 +48,9 @@ struct CANQueue {
         unsigned char length ;
 } ;
 
+struct CANPacket *g_rxpkt ;
+struct CANQueue g_canq ;
+
 void ClearMOb(void) ;
 void ClearAllMOb(void) ;
 void SetExtID(unsigned long id) ;
