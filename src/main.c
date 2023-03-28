@@ -3,7 +3,7 @@
 #include "aci429.h"
 #include "ecsctl.h"
 
-static const unsigned short CTL_REG_INITIAL = 0xE038 ;
+static const unsigned short CTL_REG_INITIAL = 0xE838 ;
 
 void main() __attribute__((noreturn)) ;
 
@@ -20,13 +20,12 @@ void main() {
         pkt->devID = 0x0 ;
         pkt->subID = 0x81 ;
         for (;;) {
-                asm("cli ; wdr ; sei;") ;
+                asm("wdr ;") ;
                 unsigned long enviro = ReadRxFIFO() ;
-                unsigned char lbl = ExtractLabel(enviro) ;
-                unsigned short temp = (short)(ExtractData(enviro)) ;
-                pkt->data[0] = lbl ;
-                pkt->data[1] = (char)(temp >> 8) ;
-                pkt->data[1] = (char)(temp & 0xFF) ;
+                pkt->data[0] = (char)(enviro >> 24) ;
+                pkt->data[1] = (char)((enviro >> 16) & 0xFF) ;
+                pkt->data[2] = (char)((enviro >> 8) & 0xFF) ;
+                pkt->data[3] = (char)(enviro & 0xFF) ;
                 SendCANPacket(pkt) ;
                 sleep_disable() ;
         }

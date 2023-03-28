@@ -1,6 +1,11 @@
 #include <math.h>
 #include "ecsctl.h"
 
+unsigned short ExtractTemperature(unsigned long word) {
+        const int CABIN_ZONE_START = 14 ;
+        return (word >> CABIN_ZONE_START) & 0xFFFF ;
+}
+
 /* create 429 word for transmission */
 
 unsigned long SetCabinFanSpeed(unsigned char speed) {

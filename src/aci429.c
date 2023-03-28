@@ -90,10 +90,10 @@ unsigned long ReadRxFIFO() {
         word = (long)SPDR << 24 ;
         SPDR = 0 ;
         SPIWait() ;
-        word = (long)SPDR << 16 ;
+        word |= (long)SPDR << 16 ;
         SPDR = 0 ;
         SPIWait() ;
-        word = (long)SPDR << 8 ;
+        word |= (long)SPDR << 8 ;
         SPDR = 0 ;
         SPIWait() ;
         word |= (long)SPDR ;
@@ -101,7 +101,7 @@ unsigned long ReadRxFIFO() {
         return word ;
 }
 
-void WriteTxFIFO(int numwords) {
+void WriteTxFIFO(const int numwords) {
         PORTC &= ~(1 << SELECT) ;
         unsigned char dum = SPSR ;
         SPDR = TX_ENQUEUE ;
@@ -135,7 +135,7 @@ unsigned char ExtractSDI(unsigned long word) {
 }
 
 unsigned long ExtractData(unsigned long word) {
-        const unsigned char DATA_FIELD_START = 10 ;
+        const int DATA_FIELD_START = 10 ;
         const unsigned long DATA_FIELD_MASK = 0x7FFFF ;
         return (word >> DATA_FIELD_START) & DATA_FIELD_MASK ;
 }

@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 
+unsigned short ExtractTemperature(unsigned long word) ;
 unsigned long SetCabinFanSpeed(unsigned char speed) ;
 unsigned long CabinZoneSetPoint(unsigned char temperature) ;
 
