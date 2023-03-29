@@ -137,50 +137,22 @@ void SendCANPacket(const struct CANPacket *pkt) {
         CANPAGE = canpagereg ;
 }
 
-unsigned char GetMObData(struct CANPacket *pkt) {
-        unsigned long canid = 0 ;
-        GetStdID(canid) ;
-        pkt->devclass = (canid & (0xFFUL << 16)) >> 16 ;
-        pkt->devID = (canid & (0xFFUL << 8)) >> 8 ;
-        pkt->subID = canid & 0xFFUL ;
-        for (unsigned char index = 0 ; index < 8 ; ++index) {
-                *(pkt->data + index) = CANMSG ;
-        }
-        return (unsigned char)(((canid & 0x1UL) << 24) >> 24) ;
-}
+void GetCANPacket(struct CANPacket *pkt) {
+        //if (CANSTMOB & (1 << RXOK)) {
+                unsigned char mobnum = 2 ;
+                CANPAGE = (mobnum << 4) ;
 
-struct CANPacket *GetPacket() {
-        if (g_canq.length < CAN_QUEUE_LEN) {
-                return &(g_canq.packet[g_canq.next]) ;
-        } else {
-                return 0 ;
-        }
-}
-
-void EnqueuePacket() {
-        g_canq.next = (g_canq.next + 1)%CAN_QUEUE_LEN ;
-        g_canq.length++ ;
-}
-
-ISR(CAN_INT_vect) {
-        struct CANPacket *pkt ;
-        unsigned char canpagereg = CANPAGE ;
-        unsigned char k = 2 ;
-        while (k <= 5 && (CANSIT & 0x3CU)) {
-                if ((CANSIT >> k) & 0x1U) {
-                        CANPAGE = (k << 4) ;
-                        if (CANSTMOB & (1 << RXOK)) {
-                                pkt = GetPacket() ;
-                                if (pkt != NULL) {
-                                        EnqueuePacket() ;
-                                }
-                                CANCDMOB &= ~((1 << CONMOB1) | (1 << CONMOB0)) ;
-                                CANCDMOB |= (0x2U << CONMOB0) ;
-                        }
-                        CANSTMOB &= 0 ;
+                unsigned long canid = 0 ;
+                GetExtID(canid) ;
+                pkt->devclass = (canid & (0xFFUL << 16)) >> 16 ;
+                pkt->devID = (canid & (0xFFUL << 8)) >> 8 ;
+                pkt->subID = canid & 0xFFUL ;
+                for (unsigned char index = 0 ; index < 8 ; ++index) {
+                        *(pkt->data + index) = CANMSG ;
                 }
-                k++ ;
-        }
-        CANGIT = 0x7FU  ;
-        CANPAGE = canpagereg ;
+
+                CANCDMOB &= ~((1 << CONMOB1) | (1 << CONMOB0)) ;
+                CANCDMOB |= (2 << CONMOB0) ;
+        //}
+        CANSTMOB &= ~(1 << RXOK) ;
 }
