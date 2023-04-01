@@ -15,10 +15,14 @@ void main() {
         InitCAN() ;
         struct CANPacket *pkt ; 
         pkt = (struct CANPacket*)malloc(sizeof(struct CANPacket)) ;
-        //g_rxpkt = (struct CANPacket*)malloc(sizeof(struct CANPacket)) ;
-        /*pkt->devclass = 0x20 ;
+        /*g_rxpkt = (struct CANPacket*)malloc(sizeof(struct CANPacket)) ;
+        pkt->devclass = 0x20 ;
         pkt->devID = 0x0 ;
-        pkt->subID = 0x81 ;*/
+        pkt->subID = 0x81 ;
+        pkt->data[0] = 0x01 ;
+        pkt->data[1] = 0x5B ;
+        pkt->data[2] = 0xBE ;
+        pkt->data[3] = 0xEF ;*/
         for (;;) {
                 asm("wdr ;") ;
                 /*unsigned long enviro = ReadRxFIFO() ;
