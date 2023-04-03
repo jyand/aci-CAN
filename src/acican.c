@@ -1,4 +1,5 @@
 #include "acican.h"
+#include <avr/eeprom.h>
 
 void SendTemperature(unsigned char subid, unsigned short temperature) {
         struct CANPacket pkt ;
@@ -23,11 +24,18 @@ void ClearAllMOb() {
         }
 }
 
-void SetExtID(unsigned long id) {
+unsigned long SetExtID(unsigned long id) {
         CANIDT1 = (*((unsigned char*)(&(id) + 3)) << 3) + (*((unsigned char*)((&(id)) + 2)) << 5) ;
         CANIDT2 = (*((unsigned char*)(&(id) + 2)) << 3) + (*((unsigned char*)((&(id)) + 1)) << 5) ;
         CANIDT3 = (*((unsigned char*)(&(id) + 1)) << 3) + (*(unsigned char*)((&(id))) << 5) ;
         CANIDT4 = (*(unsigned char*)(&(id)) << 3) ;
+        /* return value for debugging purposes*/
+        unsigned long nil = (long)CANIDT1 ;
+        nil |= ((long)CANIDT2 << 8) ;
+        nil |= ((long)CANIDT3 << 16) ;
+        nil |= ((long)CANIDT4 << 24) ;
+        return nil ;
+        return 0 ;
 }
 
 void GetExtID(unsigned long id) {
@@ -93,7 +101,7 @@ void InitCAN() {
 }
 
 unsigned long GenCANID(const struct CANPacket *pkt) {
-        const unsigned long magic = (0xBUL << 26) ;
+        const unsigned long magic = 0xB000000 ;
         unsigned long word = magic | (((unsigned long)pkt->devclass << 16) & (0xFFUL << 16)) ;
         word |= (((unsigned long)pkt->devID << 8) & (0xFFUL << 8)) ;
         word |= (unsigned long)pkt->subID & 0xFFUL ;
@@ -122,7 +130,8 @@ void SendCANPacket(const struct CANPacket *pkt) {
         CANIDT4 |= (1 << RTRTAG) ;
 
         unsigned long tempID = GenCANID(pkt) ;
-        SetExtID(tempID) ;
+        eeprom_write_dword((uint32_t*)0xA0, tempID) ;
+        unsigned long dum = SetExtID(tempID) ;
         CANCDMOB &= 0xF0U ;
         CANCDMOB |= ((unsigned char)sizeof(pkt->data) & ((1 << DLC3) | (1 << DLC2) | (1 << DLC1) | (1 << DLC0))) ;
 
@@ -135,6 +144,8 @@ void SendCANPacket(const struct CANPacket *pkt) {
         CANCDMOB |= (1 << CONMOB0) ;
 
         CANPAGE = canpagereg ;
+
+        eeprom_write_dword((uint32_t*)0xC0, dum) ;
 }
 
 void GetCANPacket(struct CANPacket *pkt) {

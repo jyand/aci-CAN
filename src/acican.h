@@ -53,10 +53,11 @@ struct CANQueue g_canq ;
 
 void ClearMOb(void) ;
 void ClearAllMOb(void) ;
-void SetExtID(unsigned long id) ;
+unsigned long SetExtID(unsigned long id) ;
 void SetStdID(unsigned long id) ;
 void InitRXMOb(unsigned char mob, unsigned long id, unsigned long mask) ;
 unsigned long GenCANID(const struct CANPacket *pkt) ;
 void SendCANPacket(const struct CANPacket *pkt) ;
 void GetCANPacket(struct CANPacket *pkt) ;
 void InitCAN(void) ;
+void SendTemperature(unsigned char subid, unsigned short temperature) ;

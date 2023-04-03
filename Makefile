@@ -9,3 +9,5 @@ clean:
 	rm -v $(OUT) *.hex
 install:
 	avrdude -v -c atmelice_isp -p m64m1 -U flash:w:$(OUT).hex:i
+debug:
+	avrdude -v -c atmelice_isp -p m64m1 -U eeprom:r:log.eep:i

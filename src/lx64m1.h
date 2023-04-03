@@ -22,7 +22,7 @@
 #define SWDTPSC 0x29U // 8s timeout
 
 // TODO: MCUCR?
-void Initialize() {
+extern void InitDevice() {
         /* I/O pins direction */
         DDRB |= (1 << SCK) | (1 << MOSI) ;
         DDRB &= ~((1 << MISO) | (1 << RXFLAG) | (1 << TXFLAG)) ;
