@@ -1,7 +1,3 @@
-#ifndef F_CPU
-#define F_CPU 16000000UL
-#endif
-
 #ifndef _ACI_CAN_H_
 #define _ACI_CAN_H_
 #endif
@@ -10,8 +6,10 @@
 #include <avr/io.h>
 #include <avr/sleep.h>
 #include <avr/wdt.h>
+#include <stdbool.h>
 #include <stddef.h>
-#include <util/delay.h>
+
+#define CAN_MAGIC 0xB000000
 
 #define CAN_BAUDRATE 500
 
@@ -31,7 +29,9 @@
 
 #define NB_MOB 6
 
-#define CAN_MASK = ((0xFU << 25) | (0x1U<< 24)) ;
+#define TOUCHSCREEN_ID 0x53
+#define ECSCTL_ID 0x20
+
 #define CAN_QUEUE_LEN 30
 
 struct CANPacket {
@@ -53,11 +53,13 @@ struct CANQueue g_canq ;
 
 void ClearMOb(void) ;
 void ClearAllMOb(void) ;
-unsigned long SetExtID(unsigned long id) ;
-void SetStdID(unsigned long id) ;
+static void GetStdID(unsigned long id) ;
+static void GetExtdID(unsigned long id) ;
+static void SetExtdID(unsigned long id) ;
+static void SetStdID(unsigned long id) ;
 void InitRXMOb(unsigned char mob, unsigned long id, unsigned long mask) ;
-unsigned long GenCANID(const struct CANPacket *pkt) ;
-void SendCANPacket(const struct CANPacket *pkt) ;
-void GetCANPacket(struct CANPacket *pkt) ;
+static unsigned long GenCANID(const struct CANPacket *pkt, const bool iscmd) ;
+void SendCANPacket(const struct CANPacket *pkt, const bool iscmd) ;
+static void GetCANPacket(struct CANPacket *pkt) ;
 void InitCAN(void) ;
 void SendTemperature(unsigned char subid, unsigned short temperature) ;

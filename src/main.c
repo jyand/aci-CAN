@@ -17,12 +17,12 @@ void main() {
         pkt = (struct CANPacket*)malloc(sizeof(struct CANPacket)) ;
         //g_rxpkt = (struct CANPacket*)malloc(sizeof(struct CANPacket)) ;
         pkt->devclass = 0x20 ;
-        pkt->devID = 0x0 ;
+        pkt->devID = 0x09 ;
         pkt->subID = 0x81 ;
-        pkt->data[0] = 0x01 ;
+/*        pkt->data[0] = 0x01 ;
         pkt->data[1] = 0x5B ;
         pkt->data[2] = 0xBE ;
-        pkt->data[3] = 0xEF ;
+        pkt->data[3] = 0xEF ;*/
         for (;;) {
                 asm("wdr ;") ;
                 unsigned long enviro = ReadRxFIFO() ;
@@ -42,12 +42,12 @@ void main() {
                         pkt->data[2] = (char)(temp & 0xFF) ;
                 }
                 //GetCANPacket(pkt) ;
-                /*for (int k = 0 ; k < sizeof(pkt->data) ; ++k) {
+/*                for (int k = 0 ; k < sizeof(pkt->data) ; ++k) {
                         TxQueue[k] = CabinZoneSetPoint(pkt->data[k]) ;
                         //TxQueue[k + 8] = SetCabinFanSpeed(pkt->data[k]) ;
                 }
                 WriteTxFIFO(sizeof(TxQueue)) ;*/
-                SendCANPacket(pkt) ;
+                SendCANPacket(pkt, true) ;
                 //SendTemperature(0x81, 0x015B) ;
                 sleep_disable() ;
         }

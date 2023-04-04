@@ -14,7 +14,7 @@ TODO: check whether this is specific to DT-250 (ask Enviro Systems?)
 */
 #define LABEL201 0x81UL
 //#define LABEL203 0xC1UL
-#define LABEL203 0x81UL
+#define LABEL203 0x83UL
 #define LABEL101 0x41UL
 #define LABEL103 0x43UL
 #define LABEL105 0x45UL

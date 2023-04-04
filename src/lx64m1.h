@@ -2,6 +2,10 @@
 #define F_CPU 16000000UL
 #endif
 
+#ifndef _LX64M1_H_
+#define _LAX64M1_H_
+#endif
+
 #include <avr/eeprom.h>
 #include <avr/io.h>
 #include <avr/sleep.h>
@@ -22,7 +26,7 @@
 #define SWDTPSC 0x29U // 8s timeout
 
 // TODO: MCUCR?
-extern void InitDevice() {
+extern inline void InitDevice() {
         /* I/O pins direction */
         DDRB |= (1 << SCK) | (1 << MOSI) ;
         DDRB &= ~((1 << MISO) | (1 << RXFLAG) | (1 << TXFLAG)) ;

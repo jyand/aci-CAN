@@ -7,51 +7,43 @@ void SendTemperature(unsigned char subid, unsigned short temperature) {
         pkt.data[1] = (signed char)(temperature & 0xFFU) ;
         pkt.data[2] = (signed char)((temperature >> 8) & 0xFFU) ;
         pkt.subID = subid ;
-        SendCANPacket(&pkt) ;
+        SendCANPacket(&pkt, true) ;
 }
 
-void ClearMOb() {
+ void ClearMOb() {
         for (unsigned char volatile *k = &CANSTMOB ; k < &CANSTML ; ++k) {
                 *k = 0x00 ;
         }
 }
 
 void ClearAllMOb() {
-        unsigned char mobnum ;
-        for (mobnum = 0 ; mobnum < NB_MOB ; mobnum++) {
+        for (unsigned char mobnum = 0 ; mobnum < NB_MOB ; mobnum++) {
                 CANPAGE = (mobnum << 4) ;
                 ClearMOb() ;
         }
 }
 
-unsigned long SetExtID(unsigned long id) {
-        CANIDT1 = (*((unsigned char*)(&(id) + 3)) << 3) + (*((unsigned char*)((&(id)) + 2)) << 5) ;
-        CANIDT2 = (*((unsigned char*)(&(id) + 2)) << 3) + (*((unsigned char*)((&(id)) + 1)) << 5) ;
-        CANIDT3 = (*((unsigned char*)(&(id) + 1)) << 3) + (*(unsigned char*)((&(id))) << 5) ;
-        CANIDT4 = (*(unsigned char*)(&(id)) << 3) ;
-        /* return value for debugging purposes*/
-        unsigned long nil = (long)CANIDT1 ;
-        nil |= ((long)CANIDT2 << 8) ;
-        nil |= ((long)CANIDT3 << 16) ;
-        nil |= ((long)CANIDT4 << 24) ;
-        return nil ;
-        return 0 ;
+inline static void SetExtdID(unsigned long id) {
+        CANIDT1 = ((*((unsigned char*)(&(id)) + 3)) << 3) + ((*((unsigned char*)((&(id)) + 2))) >> 5) ;
+        CANIDT2 = ((*((unsigned char*)(&(id)) + 2)) << 3) + ((*((unsigned char*)((&(id)) + 1))) >> 5) ;
+        CANIDT3 = ((*((unsigned char*)(&(id)) + 1)) << 3) + ((*(unsigned char*)((&(id)))) >> 5) ;
+        CANIDT4 = (*((unsigned char*)(&(id))) << 3) ;
 }
 
-void GetExtID(unsigned long id) {
+static void GetExtdID(unsigned long id) {
         *((unsigned char*)(&(id)) + 3) = CANIDT1 >> 3 ;
         *((unsigned char*)(&(id)) + 2) = (CANIDT2 >> 3) + (CANIDT1 << 5) ;
         *((unsigned char*)(&(id)) + 1) = (CANIDT3 >> 3) + (CANIDT2 << 5) ;
         *((unsigned char*)(&(id))) = (CANIDT4 >> 3) + (CANIDT3 << 5) ;
 }
 
-void SetStdID(unsigned long id) {
+static void SetStdID(unsigned long id) {
         CANIDT1 = (unsigned char)(((unsigned short)id) >> 3) ;
         CANIDT2 = (unsigned char)(((unsigned short)id) << 5) ;
         CANCDMOB &= ~(1 << IDE) ;
 }
 
-void GetStdID(unsigned long id) {
+static void GetStdID(unsigned long id) {
         *((unsigned char*)(&(id)) + 1) = CANIDT1 >> 5 ;
         *((unsigned char*)(&(id))) = (CANIDT2 >> 5) + (CANIDT1 << 3) ;
 }
@@ -64,9 +56,9 @@ void InitRXMOb(unsigned char mob, unsigned long id, unsigned long mask) {
         CANCDMOB &= ~(1 << RPLV) ;
         CANIDT4 &= ~(1 << RTRTAG) ;
 
-        SetExtID(id) ;
+        SetExtdID(id) ;
         CANCDMOB |= (1 << IDE) ; 
-        SetExtID(mask) ;
+        SetExtdID(mask) ;
         CANIDM4 |= (1 << RTRMSK) | (1 << IDEMSK) ;
 
         CANCDMOB &= ~((1 << DLC3) | (1 << DLC3) | (1 << DLC1) | (1 << DLC0)) ;
@@ -100,16 +92,21 @@ void InitCAN() {
         CANGCON |= (1 << ENASTB) ;
 }
 
-unsigned long GenCANID(const struct CANPacket *pkt) {
-        const unsigned long magic = 0xB000000 ;
-        unsigned long word = magic | (((unsigned long)pkt->devclass << 16) & (0xFFUL << 16)) ;
-        word |= (((unsigned long)pkt->devID << 8) & (0xFFUL << 8)) ;
-        word |= (unsigned long)pkt->subID & 0xFFUL ;
+unsigned long GenCANID(const struct CANPacket *pkt, const bool iscmd) {
+        unsigned long word ;
+        if (iscmd) {
+                word = 0xA000000 ;
+        } else {
+                word = 0xB000000 ;
+        }
+        word |= (((long)pkt->devclass << 16) & (0xFFUL << 16)) ;
+        word |= (((long)pkt->devID << 8) & (0xFFUL << 8)) ;
+        word |= (long)pkt->subID & 0xFFUL ;
         return word ;
 }
 
-void SendCANPacket(const struct CANPacket *pkt) {
-        const unsigned long timeout = 0xFFFFFFF ;
+void SendCANPacket(const struct CANPacket *pkt, const bool iscmd) {
+        static const unsigned long timeout = 0xFFFFFFF ;
         unsigned long timer = 0 ;
         unsigned char canpagereg = CANPAGE ;
         char k = 0 ;
@@ -129,9 +126,11 @@ void SendCANPacket(const struct CANPacket *pkt) {
         CANCDMOB |= (1 << IDE) | (1 << RPLV) ;
         CANIDT4 |= (1 << RTRTAG) ;
 
-        unsigned long tempID = GenCANID(pkt) ;
-        eeprom_write_dword((uint32_t*)0xA0, tempID) ;
-        unsigned long dum = SetExtID(tempID) ;
+        unsigned long tempID = GenCANID(pkt, iscmd) ;
+        eeprom_write_dword((void*)0xA0, tempID) ;
+        SetExtdID(tempID) ;
+        CANCDMOB |= (1 << IDE) ;
+
         CANCDMOB &= 0xF0U ;
         CANCDMOB |= ((unsigned char)sizeof(pkt->data) & ((1 << DLC3) | (1 << DLC2) | (1 << DLC1) | (1 << DLC0))) ;
 
@@ -144,8 +143,6 @@ void SendCANPacket(const struct CANPacket *pkt) {
         CANCDMOB |= (1 << CONMOB0) ;
 
         CANPAGE = canpagereg ;
-
-        eeprom_write_dword((uint32_t*)0xC0, dum) ;
 }
 
 void GetCANPacket(struct CANPacket *pkt) {
@@ -154,7 +151,7 @@ void GetCANPacket(struct CANPacket *pkt) {
                 CANPAGE = (mobnum << 4) ;
 
                 unsigned long canid = 0 ;
-                GetExtID(canid) ;
+                GetExtdID(canid) ;
                 pkt->devclass = (canid & (0xFFUL << 16)) >> 16 ;
                 pkt->devID = (canid & (0xFFUL << 8)) >> 8 ;
                 pkt->subID = canid & 0xFFUL ;
