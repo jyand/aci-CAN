@@ -5,15 +5,14 @@
 #include <stdint.h>
 
 unsigned short ExtractTemperature(unsigned long word) ;
+unsigned long SetCabinTemperature(unsigned short temperature) ;
 unsigned long SetCabinFanSpeed(unsigned char speed) ;
-unsigned long CabinZoneSetPoint(unsigned char temperature) ;
+unsigned long CabinZoneSetPoint(unsigned short temperature) ;
 
-/* for some reason 201 is the octal representation
-but 203 is the decimal representation
-TODO: check whether this is specific to DT-250 (ask Enviro Systems?)
-*/
+#define ECSCTL_CLASS 0x20U
+#define TOUCHSCREEN_CLASS 0x53U
+
 #define LABEL201 0x81UL
-//#define LABEL203 0xC1UL
 #define LABEL203 0x83UL
 #define LABEL101 0x41UL
 #define LABEL103 0x43UL

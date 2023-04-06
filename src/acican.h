@@ -60,6 +60,6 @@ static void SetStdID(unsigned long id) ;
 void InitRXMOb(unsigned char mob, unsigned long id, unsigned long mask) ;
 static unsigned long GenCANID(const struct CANPacket *pkt, const bool iscmd) ;
 void SendCANPacket(const struct CANPacket *pkt, const bool iscmd) ;
-static void GetCANPacket(struct CANPacket *pkt) ;
+void GetCANPacket(struct CANPacket *pkt) ;
 void InitCAN(void) ;
 void SendTemperature(unsigned char subid, unsigned short temperature) ;

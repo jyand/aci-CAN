@@ -124,7 +124,7 @@ void WriteTxFIFO(const int numwords) {
         PORTC |= (1 << SELECT) ;
 }
 
-inline unsigned char ExtractLabel(unsigned long word) {
+unsigned char ExtractLabel(unsigned long word) {
         return word & 0xFF ;
 }
 
