@@ -73,7 +73,7 @@ void InitCAN() {
         CANBT2 = CAN_BIT_TIMING2 ;
         CANBT3 = CAN_BIT_TIMING3 ;
 
-        CANTCON = 0xFF ;
+        CANTCON = 0x0 ;
 
         ClearAllMOb() ;
 

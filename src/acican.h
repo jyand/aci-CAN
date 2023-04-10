@@ -12,9 +12,9 @@
 #define CAN_MAGIC 0xB000000
 
 
-#define CAN_BIT_TIMING1 0x06
-#define CAN_BIT_TIMING2 0x04
-#define CAN_BIT_TIMING3 0x13
+#define CAN_BIT_TIMING1 0x0
+#define CAN_BIT_TIMING2 0x0C
+#define CAN_BIT_TIMING3 0x36
 
 #define NB_MOB 6
 
