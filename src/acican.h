@@ -11,10 +11,17 @@
 
 #define CAN_MAGIC 0xB000000
 
+#define CAN_BAUDRATE 250000
 
+#if CAN_BAUDRATE == 250000
 #define CAN_BIT_TIMING1 0x0
-#define CAN_BIT_TIMING2 0x0C
+#define CAN_BIT_TIMING2 0xC
 #define CAN_BIT_TIMING3 0x36
+#elif CAN_BAUDRATE == 125000
+#define CAN_BIT_TIMING1 0x6
+#define CAN_BIT_TIMING2 0x4
+#define CAN_BIT_TIMING3 0x13
+#endif
 
 #define NB_MOB 6
 
