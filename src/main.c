@@ -15,12 +15,12 @@ void main() {
         WriteCtlReg(CTL_REG_INITIAL) ; ;
         InitCAN() ;
         struct CANPacket *pkt ; 
-        pkt = (struct CANPacket*)malloc(sizeof(struct CANPacket)) ;
-        //g_rxpkt = (struct CANPacket*)malloc(sizeof(struct CANPacket)) ;
-        pkt->devID = 0x00 ;
-        pkt->subID = 0x00 ;
-        pkt->devclass = 0x53 ;
         for (;;) {
+                pkt = (struct CANPacket*)malloc(sizeof(struct CANPacket)) ;
+                g_rxpkt = (struct CANPacket*)malloc(sizeof(struct CANPacket)) ;
+                pkt->devID = 0x01 ;
+                pkt->subID = 0x82 ;
+                pkt->devclass = ECSCTL_ID ;
                 asm("wdr ;") ;
                 unsigned long enviro = ReadRxFIFO() ;
                 if (ExtractLabel(enviro) == 0x45) {
@@ -38,11 +38,16 @@ void main() {
                         pkt->data[1] = (char)(temp >> 8) ;
                         pkt->data[2] = (char)(temp & 0xFF) ;
                 }
-                //GetCANPacket(g_rxpkt) ;
-                //WriteTxFIFO(sizeof(TxQueue)) ;
-                //SendCANPacket(pkt, false) ;
+                GetCANPacket(g_rxpkt) ;
+                for (int k = 0 ; k < 15 ; ++k) {
+                        TxQueue[k] = SetCabinFanSpeed(k) ;
+                        TxQueue[15+k] = SetCabinTemperature(k + 60) ;
+                }
+                WriteTxFIFO(sizeof(TxQueue)) ;
                 SendCANPacket(pkt, false) ;
+                SendCANPacket(pkt, true) ;
                 SendTemperature(0x81, 0x015B) ;
+                free(pkt) ;
                 sleep_disable() ;
         }
 }

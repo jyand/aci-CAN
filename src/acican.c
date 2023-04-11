@@ -135,7 +135,7 @@ void SendCANPacket(const struct CANPacket *pkt, const bool iscmd) {
         CANCDMOB |= ((unsigned char)sizeof(pkt->data) & ((1 << DLC3) | (1 << DLC2) | (1 << DLC1) | (1 << DLC0))) ;
 
         CANPAGE &= 0xF0 ;
-        for (int8_t k = 0 ; k < ((unsigned char)sizeof(pkt->data)%9) ; k++) {
+        for (signed char k = 0 ; k < ((unsigned char)sizeof(pkt->data)%9) ; k++) {
                 CANMSG = pkt->data[k] ;
         }
 
